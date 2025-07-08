@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speed Up Caculator</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div id="layout-header"></div>
+    <header>Doomsday Last Survivors - Tool</header>
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Categories</button>
+    <nav id="navbar">
+        <div class="menu-grid">
+            <a href="index.html">Speed Up Caculator</a>
+            <a href="index2.html">Danh mục 2</a>
+            <a href="index3.html">Danh mục 3</a>
+            <a href="index4.html">Danh mục 4</a>
+            <a href="index5.html">Danh mục 5</a>
+            <a href="index6.html">Danh mục 6</a>
+            <a href="index7.html">Danh mục 7</a>
+            <a href="index8.html">Danh mục 8</a>
+            <a href="index9.html">Danh mục 9</a>
+            <a href="index10.html">Danh mục 10</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="content-container">
+            <div class="section-title">Speed Up Caculator</div>
+            <div class="form-result">
+                <div class="input-fields">
+                    <div class="input-icon"><span>1 m</span><input type="number" data-minutes="1" /></div>
+                    <div class="input-icon"><span>5 m</span><input type="number" data-minutes="5" /></div>
+                    <div class="input-icon"><span>15 m</span><input type="number" data-minutes="15" /></div>
+                    <div class="input-icon"><span>30 m</span><input type="number" data-minutes="30" /></div>
+                    <div class="input-icon"><span>60 m</span><input type="number" data-minutes="60" /></div>
+                    <div class="input-icon"><span>4 h</span><input type="number" data-minutes="240" /></div>
+                    <div class="input-icon"><span>8 h</span><input type="number" data-minutes="480" /></div>
+                    <div class="input-icon"><span>12 h</span><input type="number" data-minutes="720" /></div>
+                    <div class="input-icon"><span>15 h</span><input type="number" data-minutes="900" /></div>
+                    <div class="input-icon"><span>1 d</span><input type="number" data-minutes="1440" /></div>
+                </div>
+                <div class="result-display">
+                    The result will be showed up here!!
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>Made by <strong>VCL</strong></p>
+    </footer>
+    <script>
+        const inputs = document.querySelectorAll('.input-icon input');
+        const resultDisplay = document.querySelector('.result-display');
+
+        function updateTotalTime() {
+            let totalMinutes = 0;
+
+            inputs.forEach(input => {
+                const value = parseFloat(input.value);
+                const unitMinutes = parseFloat(input.dataset.minutes);
+                if (!isNaN(value)) {
+                    totalMinutes += value * unitMinutes;
+                }
+            });
+
+            const days = Math.floor(totalMinutes / 1440);
+            const remainingMinutes = totalMinutes % 1440;
+            const hours = Math.floor(remainingMinutes / 60);
+            const minutes = Math.round(remainingMinutes % 60);
+
+            let resultText = '';
+            if (days > 0) resultText += `${days} days `;
+            if (hours > 0) resultText += `${hours} hours `;
+            if (minutes > 0 || resultText === '') resultText += `${minutes} minutes`;
+
+            resultDisplay.textContent = resultText.trim();
+        }
+
+        // Gắn sự kiện input cho tất cả ô
+        inputs.forEach(input => {
+            input.addEventListener('input', updateTotalTime);
+        });
+
+        // Khởi tạo giá trị ban đầu
+        updateTotalTime();
+    </script>
+    <script>
+        // Toggle nav khi bấm menu (mobile)
+        function toggleMenu() {
+            const nav = document.getElementById("navbar");
+            nav.classList.toggle("show");
+        }
+    </script>
+</body>
+
+</html>
