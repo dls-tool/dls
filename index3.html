@@ -7,6 +7,21 @@
     <title>Training Troops</title>
     <link rel="stylesheet" href="style.css" />
     <style>
+        html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
         .input-fields {
             flex: 1;
             display: flex;
@@ -199,6 +214,7 @@
 </head>
 
 <body>
+<div class="page-wrapper">
     <div id="layout-header"></div>
     <header>Doomsday Last Survivors - Tool</header>
     <button class="menu-toggle" onclick="toggleMenu()">☰ Categories</button>
@@ -332,6 +348,7 @@
         // Gọi lần đầu khi trang load
         updateAll();
     </script>
+</div> <!-- Đóng page-wrapper -->
 </body>
 
 </html>

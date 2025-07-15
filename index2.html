@@ -7,6 +7,23 @@
     <title>Heroes Fragments</title>
     <link rel="stylesheet" href="style.css" />
     <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+
         .input-fields {
             flex: 1;
             display: flex;
@@ -106,111 +123,113 @@
 </head>
 
 <body>
-    <div id="layout-header"></div>
-    <header>Doomsday Last Survivors - Tool</header>
-    <button class="menu-toggle" onclick="toggleMenu()">☰ Categories</button>
-    <nav id="navbar">
-        <div class="menu-grid">
-            <a href="index.html">Speed Up Caculator</a>
-            <a href="index2.html">Heroes Fragments</a>
-            <a href="index3.html">Training Troops TC</a>
-            <a href="index4.html">Danh mục 4</a>
-            <a href="index5.html">Danh mục 5</a>
-            <a href="index6.html">Danh mục 6</a>
-            <a href="index7.html">Danh mục 7</a>
-            <a href="index8.html">Danh mục 8</a>
-            <a href="index9.html">Danh mục 9</a>
-            <a href="index10.html">Danh mục 10</a>
-        </div>
-    </nav>
+    <div class="page-wrapper">
+        <div id="layout-header"></div>
+        <header>Doomsday Last Survivors - Tool</header>
+        <button class="menu-toggle" onclick="toggleMenu()">☰ Categories</button>
+        <nav id="navbar">
+            <div class="menu-grid">
+                <a href="index.html">Speed Up Caculator</a>
+                <a href="index2.html">Heroes Fragments</a>
+                <a href="index3.html">Training Troops TC</a>
+                <a href="index4.html">Danh mục 4</a>
+                <a href="index5.html">Danh mục 5</a>
+                <a href="index6.html">Danh mục 6</a>
+                <a href="index7.html">Danh mục 7</a>
+                <a href="index8.html">Danh mục 8</a>
+                <a href="index9.html">Danh mục 9</a>
+                <a href="index10.html">Danh mục 10</a>
+            </div>
+        </nav>
 
-    <main>
-        <div class="content-container">
-            <div class="section-title">Heroes Fragments Caculator</div>
-            <div class="form-result">
-                <div class="input-fields">
-                    <div class="input-icon"><span>Hero Frags</span><input type="number" /></div>
-                    <div class="input-icon"><span>Universal Frags</span><input type="number" /></div>
-                    <div class="input-icon">
-                        <span>Skill</span>
-                        <input type="number" maxlength="4" />
+        <main>
+            <div class="content-container">
+                <div class="section-title">Heroes Fragments Caculator</div>
+                <div class="form-result">
+                    <div class="input-fields">
+                        <div class="input-icon"><span>Hero Frags</span><input type="number" /></div>
+                        <div class="input-icon"><span>Universal Frags</span><input type="number" /></div>
+                        <div class="input-icon">
+                            <span>Skill</span>
+                            <input type="number" maxlength="4" />
+                        </div>
+                        <p class="input-note">
+                            Example <code>5111,5511,5555(awaken) </code>
+                        </p>
                     </div>
-                    <p class="input-note">
-                        Example <code>5111,5511,5555(awaken) </code>
-                    </p>
-                </div>
-                <div class="result-display">
-                    Need:
+                    <div class="result-display">
+                        Need:
+                    </div>
                 </div>
             </div>
-        </div>
-    </main>
-    <footer class="footer">
-        <p>Made by <strong>VCL</strong></p>
-    </footer>
-    <script>
-        const resultDisplay = document.querySelector('.result-display');
+        </main>
+        <footer class="footer">
+            <p>Made by <strong>VCL</strong></p>
+        </footer>
+        <script>
+            const resultDisplay = document.querySelector('.result-display');
 
-        const skillTable = [
-            0,    // 0
-            10,   // 1
-            20,   // 2
-            35,   // 3
-            50,   // 4
-            75,   // 5
-            105,  // 6
-            140,  // 7
-            180,  // 8
-            220,  // 9
-            265,  // 10
-            315,  // 11
-            370,  // 12
-            440,  // 13
-            515,  // 14
-            595,  // 15
-            680   // 16
-        ];
+            const skillTable = [
+                0,    // 0
+                10,   // 1
+                20,   // 2
+                35,   // 3
+                50,   // 4
+                75,   // 5
+                105,  // 6
+                140,  // 7
+                180,  // 8
+                220,  // 9
+                265,  // 10
+                315,  // 11
+                370,  // 12
+                440,  // 13
+                515,  // 14
+                595,  // 15
+                680   // 16
+            ];
 
-        function updateResult() {
-            const inputList = document.querySelectorAll('.input-icon input');
-            const heroes = parseInt(inputList[0].value) || 0;
-            const universal = parseInt(inputList[1].value) || 0;
-            const skillRaw = inputList[2].value.trim();
+            function updateResult() {
+                const inputList = document.querySelectorAll('.input-icon input');
+                const heroes = parseInt(inputList[0].value) || 0;
+                const universal = parseInt(inputList[1].value) || 0;
+                const skillRaw = inputList[2].value.trim();
 
-            // Bước 1: Tính tổng heroes + universal
-            const totalFrag = heroes + universal;
+                // Bước 1: Tính tổng heroes + universal
+                const totalFrag = heroes + universal;
 
-            // Bước 2: Tính điểm skill
-            let skillSum = 0;
-            if (/^\d{1,4}$/.test(skillRaw)) {
-                for (let char of skillRaw) {
-                    skillSum += parseInt(char);
+                // Bước 2: Tính điểm skill
+                let skillSum = 0;
+                if (/^\d{1,4}$/.test(skillRaw)) {
+                    for (let char of skillRaw) {
+                        skillSum += parseInt(char);
+                    }
+                }
+
+                const skillFinalIndex = Math.max(skillSum - 4, 0);
+                const skillPoint = skillTable[Math.min(skillFinalIndex, 16)];
+
+                // Bước 3: Tổng điểm cần = 680 - (heroes + universal + skillPoint)
+                const result = 680 - (totalFrag + skillPoint);
+
+                resultDisplay.textContent =
+                    ` Used: ${skillPoint} frags → Need: ${result} frags`;
+                const isAwakened = skillRaw === '5555';
+                if (isAwakened) {
+                    resultDisplay.innerHTML += `<br><span class="awakened">🌟 Awakened 🌟</span>`;
                 }
             }
 
-            const skillFinalIndex = Math.max(skillSum - 4, 0);
-            const skillPoint = skillTable[Math.min(skillFinalIndex, 16)];
+            // Gắn sự kiện
+            document.querySelectorAll('.input-icon input').forEach(input => {
+                input.addEventListener('input', updateResult);
+            });
 
-            // Bước 3: Tổng điểm cần = 680 - (heroes + universal + skillPoint)
-            const result = 680 - (totalFrag + skillPoint);
+            // Khởi tạo
+            updateResult();
+        </script>
 
-            resultDisplay.textContent =
-                ` Used: ${skillPoint} frags → Need: ${result} frags`;
-            const isAwakened = skillRaw === '5555';
-            if (isAwakened) {
-                resultDisplay.innerHTML += `<br><span class="awakened">🌟 Awakened 🌟</span>`;
-            }
-        }
-
-        // Gắn sự kiện
-        document.querySelectorAll('.input-icon input').forEach(input => {
-            input.addEventListener('input', updateResult);
-        });
-
-        // Khởi tạo
-        updateResult();
-    </script>
-
+    </div> <!-- Đóng page-wrapper -->
 </body>
 
 </html>
