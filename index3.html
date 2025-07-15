@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Training Troops</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .input-fields {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: relative;
+            width: 60%;
+        }
+
+        .input-icon span {
+            position: absolute;
+            top: 50%;
+            left: 14px;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            /* nền nhạt */
+            color: #333;
+            /* chữ đậm */
+            font-weight: bold;
+            font-size: 0.85em;
+            padding: 4px 10px;
+            border-radius: 20px;
+            /* bo tròn */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            /* đổ bóng nhẹ */
+            pointer-events: none;
+            z-index: 2;
+            white-space: nowrap;
+        }
+
+        .input-icon input {
+            width: 100%;
+            padding: 12px 16px 12px 120px;
+            /* tăng từ 90px → 120px */
+            font-size: 1.05em;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            background-image: linear-gradient(135deg, #6a11cb, #2575fc);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-icon span {
+            position: absolute;
+            top: 50%;
+            left: 16px;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-weight: bold;
+            font-size: 0.8em;
+            padding: 4px 10px;
+            border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            max-width: 90px;
+            /* giới hạn độ dài */
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .input-icon input:hover {
+            transform: scale(1.03);
+            cursor: pointer;
+        }
+
+        .input-label {
+            font-size: 0.85em;
+            color: rgb(7, 2, 51);
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+
+        .no-float-label span {
+            display: none;
+            /* tắt nhãn nổi cũ nếu có */
+        }
+
+        .awakened {
+            display: inline-block;
+            margin-top: 8px;
+            color: #ffeb3b;
+            font-weight: bold;
+            font-size: 1.2em;
+            text-shadow: 0 0 5px #fbc02d;
+            animation: pulse 1s infinite alternate;
+        }
+
+        .radio-group {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.9em;
+            color: rgb(28, 16, 100);
+            font-weight: bold;
+        }
+
+        .radio-group label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+
+        .radio-group label:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .radio-group input[type="radio"] {
+            accent-color: #ffeb3b;
+        }
+
+        .upgrade-grid {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            font-size: 0.9em;
+            color: rgb(59, 11, 114);
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .upgrade-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .upgrade-col-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-align: center;
+            color: #1f1057;
+        }
+
+        .upgrade-col label {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .upgrade-col label:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .upgrade-col input[type="checkbox"] {
+            accent-color: #0c1850;
+        }
+
+        .section-divider {
+            width: 30%;
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            margin: 20px 0 10px 0;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            to {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="layout-header"></div>
+    <header>Doomsday Last Survivors - Tool</header>
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Categories</button>
+    <nav id="navbar">
+        <div class="menu-grid">
+            <a href="index.html">Speed Up Caculator</a>
+            <a href="index2.html">Heroes Fragments</a>
+            <a href="index3.html">Training Troops TC</a>
+            <a href="index4.html">Danh mục 4</a>
+            <a href="index5.html">Danh mục 5</a>
+            <a href="index6.html">Danh mục 6</a>
+            <a href="index7.html">Danh mục 7</a>
+            <a href="index8.html">Danh mục 8</a>
+            <a href="index9.html">Danh mục 9</a>
+            <a href="index10.html">Danh mục 10</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="content-container">
+            <div class="section-title">TC Training Troops Points</div>
+            <div class="form-result">
+                <div class="input-fields">
+                    <div class="input-icon">
+                        <label class="input-label" for="trainInput">Train</label>
+                        <input type="number" id="trainInput" />
+                        <div class="radio-group">
+                            <label><input type="radio" name="tier" value="T1" checked /> T1</label>
+                            <label><input type="radio" name="tier" value="T2" /> T2</label>
+                            <label><input type="radio" name="tier" value="T3" /> T3</label>
+                            <label><input type="radio" name="tier" value="T4" /> T4</label>
+                            <label><input type="radio" name="tier" value="T5" /> T5</label>
+                            <label><input type="radio" name="tier" value="T6" /> T6</label>
+                        </div>
+                    </div>
+                    <hr class="section-divider" />
+                    <div class="input-icon no-float-label">
+                        <label class="input-label" for="upgradeInput">Upgrade</label>
+                        <input type="number" id="upgradeInput" />
+                        <div class="upgrade-grid">
+                            <div class="upgrade-col">
+                                <div class="upgrade-col-title">From</div>
+                                <label><input type="radio" name="fromUpgrade" value="T1" /> T1</label>
+                                <label><input type="radio" name="fromUpgrade" value="T2" /> T2</label>
+                                <label><input type="radio" name="fromUpgrade" value="T3" /> T3</label>
+                                <label><input type="radio" name="fromUpgrade" value="T4" /> T4</label>
+                                <label><input type="radio" name="fromUpgrade" value="T5" /> T5</label>
+                            </div>
+                            <div class="upgrade-col">
+                                <div class="upgrade-col-title">To</div>
+                                <label><input type="radio" name="toUpgrade" value="T2" /> T2</label>
+                                <label><input type="radio" name="toUpgrade" value="T3" /> T3</label>
+                                <label><input type="radio" name="toUpgrade" value="T4" /> T4</label>
+                                <label><input type="radio" name="toUpgrade" value="T5" /> T5</label>
+                                <label><input type="radio" name="toUpgrade" value="T6" /> T6</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-display">
+                    <div id="train-result">Train: </div>
+                    <hr class="section-divider" />
+                    <div id="upgrade-result">Upgrade: </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>Made by <strong>VCL</strong></p>
+    </footer>
+    <script>
+        const trainResult = document.getElementById('train-result');
+        const upgradeResult = document.getElementById('upgrade-result');
+
+        function updateTrainResult() {
+            const trainCount = parseInt(document.getElementById('trainInput').value) || 0;
+            const selectedTier = document.querySelector('input[name="tier"]:checked')?.value || "T1";
+
+            const tierPointMap = {
+                T1: 5,
+                T2: 10,
+                T3: 20,
+                T4: 40,
+                T5: 80,
+                T6: 150
+            };
+
+            const point = trainCount * (tierPointMap[selectedTier] || 0);
+            trainResult.textContent = `Train: ${point.toLocaleString()} points`;
+        }
+
+        function updateUpgradeResult() {
+            const upgradeCount = parseInt(document.getElementById('upgradeInput').value) || 0;
+
+            const trainPoints = {
+                T1: 5,
+                T2: 10,
+                T3: 20,
+                T4: 40,
+                T5: 80,
+                T6: 150
+            };
+
+            const from = [document.querySelector('input[name="fromUpgrade"]:checked')?.value].filter(Boolean);
+            const to = [document.querySelector('input[name="toUpgrade"]:checked')?.value].filter(Boolean);
+            let total = 0;
+
+            for (let f of from) {
+                for (let t of to) {
+                    if (trainPoints[t] > trainPoints[f]) {
+                        const diff = trainPoints[t] - trainPoints[f];
+                        total += diff * upgradeCount;
+                    }
+                }
+            }
+
+            upgradeResult.textContent = `Upgrade: ${total.toLocaleString()} points`;
+        }
+
+        function updateAll() {
+            updateTrainResult();
+            updateUpgradeResult();
+        }
+
+        // Gắn sự kiện input và change
+        document.querySelectorAll('input').forEach(el => {
+            el.addEventListener('input', updateAll);
+            el.addEventListener('change', updateAll);
+        });
+
+        // Gọi lần đầu khi trang load
+        updateAll();
+    </script>
+</body>
+
+</html>
