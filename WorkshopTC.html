@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Master Optimizer</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #0f172a; --red: #e11d48; --green: #10b981; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 950px; width: 100%; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: var(--primary); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Resource Section */
+        .res-input { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #eff6ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #dbeafe; }
+        .fld { display: flex; flex-direction: column; }
+        label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
+        input { padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-weight: 600; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--primary); }
+
+        /* Grid */
+        .ws-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .ws-card { border: 1px solid #f1f5f9; padding: 15px; border-radius: 16px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .ws-title { font-weight: 800; font-size: 13px; margin-bottom: 12px; color: var(--primary); display: block; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+
+        button { width: 100%; padding: 18px; background: var(--primary); border: none; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 16px; text-transform: uppercase; transition: 0.2s; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        button:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+        /* Result Table */
+        #result { margin-top: 25px; padding: 20px; border-radius: 15px; display: none; background: #f8fafc; border: 1px solid #e2e8f0; animation: fadeIn 0.4s; }
+        .summary-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .summary-item { font-size: 13px; font-weight: 600; }
+        .summary-item span { display: block; font-size: 18px; color: var(--red); font-weight: 800; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; border-radius: 10px; overflow: hidden; }
+        th { background: #f1f5f9; color: #475569; text-align: left; padding: 12px; border-bottom: 2px solid #cbd5e1; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .step-num { background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Workshop Optimizer</h2>
+
+    <div class="res-input">
+        <div class="fld"><label>Premium Metal</label><input type="number" id="myMetal" value="0"></div>
+        <div class="fld"><label>High Carbon Steel</label><input type="number" id="mySteel" value="0"></div>
+    </div>
+
+    <div class="ws-grid" id="wsContainer"></div>
+
+    <button onclick="calculateOptimization()">Optimize My Workshop</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    // Dữ liệu từ file DLS.html (Bạn nhớ dán toàn bộ 126 dòng vào đây nhé)
+    const upgradeData = [
+  {
+    "Level": 1,
+    "Blueprints": 0,
+    "Premium Metal": 705,
+    "High Carbon Steel": 20,
+    "Might": 348100,
+    "FP/SP": 278,
+    "%ATK/DEF": 8.5
+  },
+  {
+    "Level": 2,
+    "Blueprints": 0,
+    "Premium Metal": 780,
+    "High Carbon Steel": 21,
+    "Might": 352100,
+    "FP/SP": 283,
+    "%ATK/DEF": 8.5
+  },
+  {
+    "Level": 3,
+    "Blueprints": 0,
+    "Premium Metal": 825,
+    "High Carbon Steel": 23,
+    "Might": 356400,
+    "FP/SP": 288,
+    "%ATK/DEF": 8.5
+  },
+  {
+    "Level": 4,
+    "Blueprints": 0,
+    "Premium Metal": 865,
+    "High Carbon Steel": 23,
+    "Might": 361000,
+    "FP/SP": 293,
+    "%ATK/DEF": 8.5
+  },
+  {
+    "Level": 5,
+    "Blueprints": 10,
+    "Premium Metal": 3705,
+    "High Carbon Steel": 134,
+    "Might": 365700,
+    "FP/SP": 298,
+    "%ATK/DEF": 8.5
+  },
+  {
+    "Level": 6,
+    "Blueprints": 0,
+    "Premium Metal": 795,
+    "High Carbon Steel": 22,
+    "Might": 388900,
+    "FP/SP": 308,
+    "%ATK/DEF": 9
+  },
+  {
+    "Level": 7,
+    "Blueprints": 0,
+    "Premium Metal": 850,
+    "High Carbon Steel": 24,
+    "Might": 393300,
+    "FP/SP": 313,
+    "%ATK/DEF": 9
+  },
+  {
+    "Level": 8,
+    "Blueprints": 0,
+    "Premium Metal": 930,
+    "High Carbon Steel": 25,
+    "Might": 398100,
+    "FP/SP": 318,
+    "%ATK/DEF": 9
+  },
+  {
+    "Level": 9,
+    "Blueprints": 0,
+    "Premium Metal": 975,
+    "High Carbon Steel": 26,
+    "Might": 403200,
+    "FP/SP": 323,
+    "%ATK/DEF": 9
+  },
+  {
+    "Level": 10,
+    "Blueprints": 10,
+    "Premium Metal": 3895,
+    "High Carbon Steel": 162,
+    "Might": 408500,
+    "FP/SP": 328,
+    "%ATK/DEF": 9
+  },
+  {
+    "Level": 11,
+    "Blueprints": 0,
+    "Premium Metal": 900,
+    "High Carbon Steel": 25,
+    "Might": 434800,
+    "FP/SP": 338,
+    "%ATK/DEF": 10
+  },
+  {
+    "Level": 12,
+    "Blueprints": 0,
+    "Premium Metal": 990,
+    "High Carbon Steel": 26,
+    "Might": 439800,
+    "FP/SP": 343,
+    "%ATK/DEF": 10
+  },
+  {
+    "Level": 13,
+    "Blueprints": 0,
+    "Premium Metal": 1050,
+    "High Carbon Steel": 28,
+    "Might": 445200,
+    "FP/SP": 348,
+    "%ATK/DEF": 10
+  },
+  {
+    "Level": 14,
+    "Blueprints": 0,
+    "Premium Metal": 1075,
+    "High Carbon Steel": 29,
+    "Might": 450900,
+    "FP/SP": 353,
+    "%ATK/DEF": 10
+  },
+  {
+    "Level": 15,
+    "Blueprints": 10,
+    "Premium Metal": 4325,
+    "High Carbon Steel": 178,
+    "Might": 456800,
+    "FP/SP": 358,
+    "%ATK/DEF": 10
+  },
+  {
+    "Level": 16,
+    "Blueprints": 0,
+    "Premium Metal": 990,
+    "High Carbon Steel": 28,
+    "Might": 485800,
+    "FP/SP": 368,
+    "%ATK/DEF": 11
+  },
+  {
+    "Level": 17,
+    "Blueprints": 0,
+    "Premium Metal": 1060,
+    "High Carbon Steel": 30,
+    "Might": 491300,
+    "FP/SP": 373,
+    "%ATK/DEF": 11
+  },
+  {
+    "Level": 18,
+    "Blueprints": 0,
+    "Premium Metal": 1165,
+    "High Carbon Steel": 32,
+    "Might": 497200,
+    "FP/SP": 378,
+    "%ATK/DEF": 11
+  },
+  {
+    "Level": 19,
+    "Blueprints": 0,
+    "Premium Metal": 1195,
+    "High Carbon Steel": 33,
+    "Might": 503600,
+    "FP/SP": 383,
+    "%ATK/DEF": 11
+  },
+  {
+    "Level": 20,
+    "Blueprints": 15,
+    "Premium Metal": 4945,
+    "High Carbon Steel": 199,
+    "Might": 510200,
+    "FP/SP": 388,
+    "%ATK/DEF": 11
+  },
+  {
+    "Level": 21,
+    "Blueprints": 0,
+    "Premium Metal": 1125,
+    "High Carbon Steel": 31,
+    "Might": 543000,
+    "FP/SP": 398,
+    "%ATK/DEF": 12
+  },
+  {
+    "Level": 22,
+    "Blueprints": 0,
+    "Premium Metal": 1210,
+    "High Carbon Steel": 33,
+    "Might": 549500,
+    "FP/SP": 403,
+    "%ATK/DEF": 12
+  },
+  {
+    "Level": 23,
+    "Blueprints": 0,
+    "Premium Metal": 1300,
+    "High Carbon Steel": 36,
+    "Might": 556500,
+    "FP/SP": 408,
+    "%ATK/DEF": 12
+  },
+  {
+    "Level": 24,
+    "Blueprints": 0,
+    "Premium Metal": 1365,
+    "High Carbon Steel": 37,
+    "Might": 564000,
+    "FP/SP": 413,
+    "%ATK/DEF": 12
+  },
+  {
+    "Level": 25,
+    "Blueprints": 15,
+    "Premium Metal": 5485,
+    "High Carbon Steel": 224,
+    "Might": 571500,
+    "FP/SP": 418,
+    "%ATK/DEF": 12
+  },
+  {
+    "Level": 26,
+    "Blueprints": 0,
+    "Premium Metal": 1255,
+    "High Carbon Steel": 35,
+    "Might": 608500,
+    "FP/SP": 428,
+    "%ATK/DEF": 13
+  },
+  {
+    "Level": 27,
+    "Blueprints": 0,
+    "Premium Metal": 1380,
+    "High Carbon Steel": 37,
+    "Might": 615500,
+    "FP/SP": 433,
+    "%ATK/DEF": 13
+  },
+  {
+    "Level": 28,
+    "Blueprints": 0,
+    "Premium Metal": 1455,
+    "High Carbon Steel": 40,
+    "Might": 623000,
+    "FP/SP": 438,
+    "%ATK/DEF": 13
+  },
+  {
+    "Level": 29,
+    "Blueprints": 0,
+    "Premium Metal": 1530,
+    "High Carbon Steel": 41,
+    "Might": 631000,
+    "FP/SP": 443,
+    "%ATK/DEF": 13
+  },
+  {
+    "Level": 30,
+    "Blueprints": 15,
+    "Premium Metal": 6130,
+    "High Carbon Steel": 252,
+    "Might": 639500,
+    "FP/SP": 448,
+    "%ATK/DEF": 13
+  },
+  {
+    "Level": 31,
+    "Blueprints": 0,
+    "Premium Metal": 1430,
+    "High Carbon Steel": 39,
+    "Might": 681000,
+    "FP/SP": 458,
+    "%ATK/DEF": 14.5
+  },
+  {
+    "Level": 32,
+    "Blueprints": 0,
+    "Premium Metal": 1515,
+    "High Carbon Steel": 42,
+    "Might": 689000,
+    "FP/SP": 463,
+    "%ATK/DEF": 14.5
+  },
+  {
+    "Level": 33,
+    "Blueprints": 0,
+    "Premium Metal": 1635,
+    "High Carbon Steel": 45,
+    "Might": 697500,
+    "FP/SP": 468,
+    "%ATK/DEF": 14.5
+  },
+  {
+    "Level": 34,
+    "Blueprints": 0,
+    "Premium Metal": 1715,
+    "High Carbon Steel": 46,
+    "Might": 706500,
+    "FP/SP": 473,
+    "%ATK/DEF": 14.5
+  },
+  {
+    "Level": 35,
+    "Blueprints": 20,
+    "Premium Metal": 6860,
+    "High Carbon Steel": 279,
+    "Might": 716000,
+    "FP/SP": 478,
+    "%ATK/DEF": 14.5
+  },
+  {
+    "Level": 36,
+    "Blueprints": 0,
+    "Premium Metal": 1575,
+    "High Carbon Steel": 44,
+    "Might": 762000,
+    "FP/SP": 488,
+    "%ATK/DEF": 16
+  },
+  {
+    "Level": 37,
+    "Blueprints": 0,
+    "Premium Metal": 1710,
+    "High Carbon Steel": 47,
+    "Might": 771000,
+    "FP/SP": 494,
+    "%ATK/DEF": 16
+  },
+  {
+    "Level": 38,
+    "Blueprints": 0,
+    "Premium Metal": 1845,
+    "High Carbon Steel": 50,
+    "Might": 780500,
+    "FP/SP": 500,
+    "%ATK/DEF": 16
+  },
+  {
+    "Level": 39,
+    "Blueprints": 0,
+    "Premium Metal": 1905,
+    "High Carbon Steel": 52,
+    "Might": 791000,
+    "FP/SP": 506,
+    "%ATK/DEF": 16
+  },
+  {
+    "Level": 40,
+    "Blueprints": 20,
+    "Premium Metal": 7705,
+    "High Carbon Steel": 314,
+    "Might": 801500,
+    "FP/SP": 512,
+    "%ATK/DEF": 16
+  },
+  {
+    "Level": 41,
+    "Blueprints": 0,
+    "Premium Metal": 1780,
+    "High Carbon Steel": 49,
+    "Might": 853000,
+    "FP/SP": 523,
+    "%ATK/DEF": 18
+  },
+  {
+    "Level": 42,
+    "Blueprints": 0,
+    "Premium Metal": 1905,
+    "High Carbon Steel": 53,
+    "Might": 863000,
+    "FP/SP": 529,
+    "%ATK/DEF": 18
+  },
+  {
+    "Level": 43,
+    "Blueprints": 0,
+    "Premium Metal": 2055,
+    "High Carbon Steel": 56,
+    "Might": 873500,
+    "FP/SP": 535,
+    "%ATK/DEF": 18
+  },
+  {
+    "Level": 44,
+    "Blueprints": 0,
+    "Premium Metal": 2130,
+    "High Carbon Steel": 58,
+    "Might": 885000,
+    "FP/SP": 541,
+    "%ATK/DEF": 18
+  },
+  {
+    "Level": 45,
+    "Blueprints": 20,
+    "Premium Metal": 8645,
+    "High Carbon Steel": 348,
+    "Might": 897000,
+    "FP/SP": 547,
+    "%ATK/DEF": 18
+  },
+  {
+    "Level": 46,
+    "Blueprints": 0,
+    "Premium Metal": 1980,
+    "High Carbon Steel": 55,
+    "Might": 954500,
+    "FP/SP": 558,
+    "%ATK/DEF": 20
+  },
+  {
+    "Level": 47,
+    "Blueprints": 0,
+    "Premium Metal": 2160,
+    "High Carbon Steel": 59,
+    "Might": 965500,
+    "FP/SP": 566,
+    "%ATK/DEF": 20
+  },
+  {
+    "Level": 48,
+    "Blueprints": 0,
+    "Premium Metal": 2305,
+    "High Carbon Steel": 63,
+    "Might": 977500,
+    "FP/SP": 574,
+    "%ATK/DEF": 20
+  },
+  {
+    "Level": 49,
+    "Blueprints": 0,
+    "Premium Metal": 2395,
+    "High Carbon Steel": 65,
+    "Might": 990500,
+    "FP/SP": 582,
+    "%ATK/DEF": 20
+  },
+  {
+    "Level": 50,
+    "Blueprints": 25,
+    "Premium Metal": 9660,
+    "High Carbon Steel": 392,
+    "Might": 1004000,
+    "FP/SP": 590,
+    "%ATK/DEF": 20
+  },
+  {
+    "Level": 51,
+    "Blueprints": 0,
+    "Premium Metal": 2250,
+    "High Carbon Steel": 61,
+    "Might": 1068500,
+    "FP/SP": 608,
+    "%ATK/DEF": 22.5
+  },
+  {
+    "Level": 52,
+    "Blueprints": 0,
+    "Premium Metal": 2425,
+    "High Carbon Steel": 66,
+    "Might": 1081000,
+    "FP/SP": 616,
+    "%ATK/DEF": 22.5
+  },
+  {
+    "Level": 53,
+    "Blueprints": 0,
+    "Premium Metal": 2590,
+    "High Carbon Steel": 70,
+    "Might": 1094500,
+    "FP/SP": 624,
+    "%ATK/DEF": 22.5
+  },
+  {
+    "Level": 54,
+    "Blueprints": 0,
+    "Premium Metal": 2690,
+    "High Carbon Steel": 73,
+    "Might": 1109000,
+    "FP/SP": 632,
+    "%ATK/DEF": 22.5
+  },
+  {
+    "Level": 55,
+    "Blueprints": 25,
+    "Premium Metal": 10755,
+    "High Carbon Steel": 441,
+    "Might": 1124000,
+    "FP/SP": 640,
+    "%ATK/DEF": 22.5
+  },
+  {
+    "Level": 56,
+    "Blueprints": 0,
+    "Premium Metal": 2500,
+    "High Carbon Steel": 69,
+    "Might": 1196000,
+    "FP/SP": 658,
+    "%ATK/DEF": 25
+  },
+  {
+    "Level": 57,
+    "Blueprints": 0,
+    "Premium Metal": 2700,
+    "High Carbon Steel": 74,
+    "Might": 1210000,
+    "FP/SP": 667,
+    "%ATK/DEF": 25
+  },
+  {
+    "Level": 58,
+    "Blueprints": 0,
+    "Premium Metal": 2890,
+    "High Carbon Steel": 79,
+    "Might": 1225000,
+    "FP/SP": 676,
+    "%ATK/DEF": 25
+  },
+  {
+    "Level": 59,
+    "Blueprints": 0,
+    "Premium Metal": 2980,
+    "High Carbon Steel": 82,
+    "Might": 1241000,
+    "FP/SP": 685,
+    "%ATK/DEF": 25
+  },
+  {
+    "Level": 60,
+    "Blueprints": 25,
+    "Premium Metal": 12125,
+    "High Carbon Steel": 489,
+    "Might": 1257500,
+    "FP/SP": 694,
+    "%ATK/DEF": 25
+  },
+  {
+    "Level": 61,
+    "Blueprints": 0,
+    "Premium Metal": 2820,
+    "High Carbon Steel": 77,
+    "Might": 1338000,
+    "FP/SP": 713,
+    "%ATK/DEF": 28
+  },
+  {
+    "Level": 62,
+    "Blueprints": 0,
+    "Premium Metal": 3020,
+    "High Carbon Steel": 83,
+    "Might": 1353500,
+    "FP/SP": 723,
+    "%ATK/DEF": 28
+  },
+  {
+    "Level": 63,
+    "Blueprints": 0,
+    "Premium Metal": 3240,
+    "High Carbon Steel": 88,
+    "Might": 1370500,
+    "FP/SP": 733,
+    "%ATK/DEF": 28
+  },
+  {
+    "Level": 64,
+    "Blueprints": 0,
+    "Premium Metal": 3345,
+    "High Carbon Steel": 92,
+    "Might": 1388500,
+    "FP/SP": 743,
+    "%ATK/DEF": 28
+  },
+  {
+    "Level": 65,
+    "Blueprints": 30,
+    "Premium Metal": 13535,
+    "High Carbon Steel": 549,
+    "Might": 1407000,
+    "FP/SP": 753,
+    "%ATK/DEF": 28
+  },
+  {
+    "Level": 66,
+    "Blueprints": 0,
+    "Premium Metal": 3155,
+    "High Carbon Steel": 86,
+    "Might": 1497500,
+    "FP/SP": 773,
+    "%ATK/DEF": 31
+  },
+  {
+    "Level": 67,
+    "Blueprints": 0,
+    "Premium Metal": 3370,
+    "High Carbon Steel": 93,
+    "Might": 1515000,
+    "FP/SP": 784,
+    "%ATK/DEF": 31
+  },
+  {
+    "Level": 68,
+    "Blueprints": 0,
+    "Premium Metal": 3615,
+    "High Carbon Steel": 99,
+    "Might": 1533500,
+    "FP/SP": 795,
+    "%ATK/DEF": 31
+  },
+  {
+    "Level": 69,
+    "Blueprints": 0,
+    "Premium Metal": 3775,
+    "High Carbon Steel": 102,
+    "Might": 1553500,
+    "FP/SP": 806,
+    "%ATK/DEF": 31
+  },
+  {
+    "Level": 70,
+    "Blueprints": 30,
+    "Premium Metal": 15145,
+    "High Carbon Steel": 616,
+    "Might": 1574500,
+    "FP/SP": 817,
+    "%ATK/DEF": 31
+  },
+  {
+    "Level": 71,
+    "Blueprints": 0,
+    "Premium Metal": 3525,
+    "High Carbon Steel": 96,
+    "Might": 1675500,
+    "FP/SP": 838,
+    "%ATK/DEF": 34
+  },
+  {
+    "Level": 72,
+    "Blueprints": 0,
+    "Premium Metal": 3805,
+    "High Carbon Steel": 104,
+    "Might": 1695000,
+    "FP/SP": 851,
+    "%ATK/DEF": 34
+  },
+  {
+    "Level": 73,
+    "Blueprints": 0,
+    "Premium Metal": 4025,
+    "High Carbon Steel": 111,
+    "Might": 1716000,
+    "FP/SP": 864,
+    "%ATK/DEF": 34
+  },
+  {
+    "Level": 74,
+    "Blueprints": 0,
+    "Premium Metal": 4100,
+    "High Carbon Steel": 121,
+    "Might": 1738500,
+    "FP/SP": 877,
+    "%ATK/DEF": 34
+  },
+  {
+    "Level": 75,
+    "Blueprints": 30,
+    "Premium Metal": 11125,
+    "High Carbon Steel": 600,
+    "Might": 1768500,
+    "FP/SP": 905,
+    "%ATK/DEF": 34
+  },
+  {
+    "Level": 76,
+    "Blueprints": 0,
+    "Premium Metal": 4090,
+    "High Carbon Steel": 112,
+    "Might": 1850000,
+    "FP/SP": 915,
+    "%ATK/DEF": 37.5
+  },
+  {
+    "Level": 77,
+    "Blueprints": 0,
+    "Premium Metal": 4405,
+    "High Carbon Steel": 120,
+    "Might": 1880000,
+    "FP/SP": 928,
+    "%ATK/DEF": 37.5
+  },
+  {
+    "Level": 78,
+    "Blueprints": 0,
+    "Premium Metal": 4695,
+    "High Carbon Steel": 128,
+    "Might": 1910000,
+    "FP/SP": 941,
+    "%ATK/DEF": 37.5
+  },
+  {
+    "Level": 79,
+    "Blueprints": 0,
+    "Premium Metal": 4930,
+    "High Carbon Steel": 134,
+    "Might": 1940000,
+    "FP/SP": 954,
+    "%ATK/DEF": 37.5
+  },
+  {
+    "Level": 80,
+    "Blueprints": 60,
+    "Premium Metal": 13965,
+    "High Carbon Steel": 670,
+    "Might": 1970000,
+    "FP/SP": 967,
+    "%ATK/DEF": 37.5
+  },
+  {
+    "Level": 81,
+    "Blueprints": 0,
+    "Premium Metal": 4740,
+    "High Carbon Steel": 129,
+    "Might": 2080000,
+    "FP/SP": 1007,
+    "%ATK/DEF": 40
+  },
+  {
+    "Level": 82,
+    "Blueprints": 0,
+    "Premium Metal": 5105,
+    "High Carbon Steel": 139,
+    "Might": 2110000,
+    "FP/SP": 1020,
+    "%ATK/DEF": 40
+  },
+  {
+    "Level": 83,
+    "Blueprints": 0,
+    "Premium Metal": 5440,
+    "High Carbon Steel": 148,
+    "Might": 2140000,
+    "FP/SP": 1033,
+    "%ATK/DEF": 40
+  },
+  {
+    "Level": 84,
+    "Blueprints": 0,
+    "Premium Metal": 5710,
+    "High Carbon Steel": 156,
+    "Might": 2170000,
+    "FP/SP": 1046,
+    "%ATK/DEF": 40
+  },
+  {
+    "Level": 85,
+    "Blueprints": 90,
+    "Premium Metal": 17070,
+    "High Carbon Steel": 740,
+    "Might": 2210000,
+    "FP/SP": 1059,
+    "%ATK/DEF": 40
+  },
+  {
+    "Level": 86,
+    "Blueprints": 0,
+    "Premium Metal": 5495,
+    "High Carbon Steel": 150,
+    "Might": 2330000,
+    "FP/SP": 1099,
+    "%ATK/DEF": 42.5
+  },
+  {
+    "Level": 87,
+    "Blueprints": 0,
+    "Premium Metal": 5915,
+    "High Carbon Steel": 161,
+    "Might": 2360000,
+    "FP/SP": 1113,
+    "%ATK/DEF": 42.5
+  },
+  {
+    "Level": 88,
+    "Blueprints": 0,
+    "Premium Metal": 6305,
+    "High Carbon Steel": 172,
+    "Might": 2400000,
+    "FP/SP": 1127,
+    "%ATK/DEF": 42.5
+  },
+  {
+    "Level": 89,
+    "Blueprints": 0,
+    "Premium Metal": 6615,
+    "High Carbon Steel": 180,
+    "Might": 2440000,
+    "FP/SP": 1141,
+    "%ATK/DEF": 42.5
+  },
+  {
+    "Level": 90,
+    "Blueprints": 120,
+    "Premium Metal": 20395,
+    "High Carbon Steel": 830,
+    "Might": 2480000,
+    "FP/SP": 1155,
+    "%ATK/DEF": 42.5
+  },
+  {
+    "Level": 91,
+    "Blueprints": 0,
+    "Premium Metal": 6365,
+    "High Carbon Steel": 174,
+    "Might": 2620000,
+    "FP/SP": 1196,
+    "%ATK/DEF": 45
+  },
+  {
+    "Level": 92,
+    "Blueprints": 0,
+    "Premium Metal": 6850,
+    "High Carbon Steel": 187,
+    "Might": 2660000,
+    "FP/SP": 1210,
+    "%ATK/DEF": 45
+  },
+  {
+    "Level": 93,
+    "Blueprints": 0,
+    "Premium Metal": 7305,
+    "High Carbon Steel": 199,
+    "Might": 2700000,
+    "FP/SP": 1224,
+    "%ATK/DEF": 45
+  },
+  {
+    "Level": 94,
+    "Blueprints": 0,
+    "Premium Metal": 7665,
+    "High Carbon Steel": 209,
+    "Might": 2740000,
+    "FP/SP": 1238,
+    "%ATK/DEF": 45
+  },
+  {
+    "Level": 95,
+    "Blueprints": 150,
+    "Premium Metal": 24100,
+    "High Carbon Steel": 945,
+    "Might": 2790000,
+    "FP/SP": 1252,
+    "%ATK/DEF": 45
+  },
+  {
+    "Level": 96,
+    "Blueprints": 0,
+    "Premium Metal": 7370,
+    "High Carbon Steel": 201,
+    "Might": 2950000,
+    "FP/SP": 1293,
+    "%ATK/DEF": 47.5
+  },
+  {
+    "Level": 97,
+    "Blueprints": 0,
+    "Premium Metal": 7930,
+    "High Carbon Steel": 216,
+    "Might": 3000000,
+    "FP/SP": 1308,
+    "%ATK/DEF": 47.5
+  },
+  {
+    "Level": 98,
+    "Blueprints": 0,
+    "Premium Metal": 8460,
+    "High Carbon Steel": 231,
+    "Might": 3050000,
+    "FP/SP": 1323,
+    "%ATK/DEF": 47.5
+  },
+  {
+    "Level": 99,
+    "Blueprints": 0,
+    "Premium Metal": 8885,
+    "High Carbon Steel": 242,
+    "Might": 3100000,
+    "FP/SP": 1338,
+    "%ATK/DEF": 47.5
+  },
+  {
+    "Level": 100,
+    "Blueprints": 190,
+    "Premium Metal": 27910,
+    "High Carbon Steel": 1090,
+    "Might": 3150000,
+    "FP/SP": 1353,
+    "%ATK/DEF": 47.5
+  },
+  {
+    "Level": 101,
+    "Blueprints": 0,
+    "Premium Metal": 8535,
+    "High Carbon Steel": 233,
+    "Might": 3340000,
+    "FP/SP": 1395,
+    "%ATK/DEF": 50
+  },
+  {
+    "Level": 102,
+    "Blueprints": 0,
+    "Premium Metal": 9185,
+    "High Carbon Steel": 251,
+    "Might": 3390000,
+    "FP/SP": 1410,
+    "%ATK/DEF": 50
+  },
+  {
+    "Level": 103,
+    "Blueprints": 0,
+    "Premium Metal": 9800,
+    "High Carbon Steel": 267,
+    "Might": 3450000,
+    "FP/SP": 1425,
+    "%ATK/DEF": 50
+  },
+  {
+    "Level": 104,
+    "Blueprints": 0,
+    "Premium Metal": 10290,
+    "High Carbon Steel": 281,
+    "Might": 3510000,
+    "FP/SP": 1440,
+    "%ATK/DEF": 50
+  },
+  {
+    "Level": 105,
+    "Blueprints": 230,
+    "Premium Metal": 32320,
+    "High Carbon Steel": 1265,
+    "Might": 3570000,
+    "FP/SP": 1455,
+    "%ATK/DEF": 50
+  },
+  {
+    "Level": 106,
+    "Blueprints": 0,
+    "Premium Metal": 9890,
+    "High Carbon Steel": 270,
+    "Might": 3790000,
+    "FP/SP": 1497,
+    "%ATK/DEF": 52.5
+  },
+  {
+    "Level": 107,
+    "Blueprints": 0,
+    "Premium Metal": 10635,
+    "High Carbon Steel": 290,
+    "Might": 3850000,
+    "FP/SP": 1513,
+    "%ATK/DEF": 52.5
+  },
+  {
+    "Level": 108,
+    "Blueprints": 0,
+    "Premium Metal": 11350,
+    "High Carbon Steel": 310,
+    "Might": 3910000,
+    "FP/SP": 1529,
+    "%ATK/DEF": 52.5
+  },
+  {
+    "Level": 109,
+    "Blueprints": 0,
+    "Premium Metal": 11920,
+    "High Carbon Steel": 325,
+    "Might": 3980000,
+    "FP/SP": 1545,
+    "%ATK/DEF": 52.5
+  },
+  {
+    "Level": 110,
+    "Blueprints": 270,
+    "Premium Metal": 37430,
+    "High Carbon Steel": 1465,
+    "Might": 4050000,
+    "FP/SP": 1561,
+    "%ATK/DEF": 52.5
+  },
+  {
+    "Level": 111,
+    "Blueprints": 0,
+    "Premium Metal": 11455,
+    "High Carbon Steel": 312,
+    "Might": 4300000,
+    "FP/SP": 1604,
+    "%ATK/DEF": 55
+  },
+  {
+    "Level": 112,
+    "Blueprints": 0,
+    "Premium Metal": 12320,
+    "High Carbon Steel": 336,
+    "Might": 4370000,
+    "FP/SP": 1620,
+    "%ATK/DEF": 55
+  },
+  {
+    "Level": 113,
+    "Blueprints": 0,
+    "Premium Metal": 13150,
+    "High Carbon Steel": 359,
+    "Might": 4440000,
+    "FP/SP": 1636,
+    "%ATK/DEF": 55
+  },
+  {
+    "Level": 114,
+    "Blueprints": 0,
+    "Premium Metal": 13805,
+    "High Carbon Steel": 377,
+    "Might": 4520000,
+    "FP/SP": 1652,
+    "%ATK/DEF": 55
+  },
+  {
+    "Level": 115,
+    "Blueprints": 310,
+    "Premium Metal": 43345,
+    "High Carbon Steel": 1695,
+    "Might": 4600000,
+    "FP/SP": 1668,
+    "%ATK/DEF": 55
+  },
+  {
+    "Level": 116,
+    "Blueprints": 0,
+    "Premium Metal": 13270,
+    "High Carbon Steel": 362,
+    "Might": 4890000,
+    "FP/SP": 1711,
+    "%ATK/DEF": 57.5
+  },
+  {
+    "Level": 117,
+    "Blueprints": 0,
+    "Premium Metal": 14265,
+    "High Carbon Steel": 389,
+    "Might": 4970000,
+    "FP/SP": 1728,
+    "%ATK/DEF": 57.5
+  },
+  {
+    "Level": 118,
+    "Blueprints": 0,
+    "Premium Metal": 15230,
+    "High Carbon Steel": 415,
+    "Might": 5050000,
+    "FP/SP": 1745,
+    "%ATK/DEF": 57.5
+  },
+  {
+    "Level": 119,
+    "Blueprints": 0,
+    "Premium Metal": 15990,
+    "High Carbon Steel": 436,
+    "Might": 5140000,
+    "FP/SP": 1762,
+    "%ATK/DEF": 57.5
+  },
+  {
+    "Level": 120,
+    "Blueprints": 360,
+    "Premium Metal": 50195,
+    "High Carbon Steel": 1965,
+    "Might": 5230000,
+    "FP/SP": 1779,
+    "%ATK/DEF": 57.5
+  },
+  {
+    "Level": 121,
+    "Blueprints": 0,
+    "Premium Metal": 15375,
+    "High Carbon Steel": 419,
+    "Might": 5560000,
+    "FP/SP": 1823,
+    "%ATK/DEF": 60
+  },
+  {
+    "Level": 122,
+    "Blueprints": 0,
+    "Premium Metal": 16520,
+    "High Carbon Steel": 451,
+    "Might": 5650000,
+    "FP/SP": 1840,
+    "%ATK/DEF": 60
+  },
+  {
+    "Level": 123,
+    "Blueprints": 0,
+    "Premium Metal": 17640,
+    "High Carbon Steel": 481,
+    "Might": 5750000,
+    "FP/SP": 1857,
+    "%ATK/DEF": 60
+  },
+  {
+    "Level": 124,
+    "Blueprints": 0,
+    "Premium Metal": 18520,
+    "High Carbon Steel": 505,
+    "Might": 5850000,
+    "FP/SP": 1874,
+    "%ATK/DEF": 60
+  },
+  {
+    "Level": 125,
+    "Blueprints": 420,
+    "Premium Metal": 58130,
+    "High Carbon Steel": 2275,
+    "Might": 5960000,
+    "FP/SP": 1891,
+    "%ATK/DEF": 60
+  },
+  {
+    "Level": 126,
+    "Blueprints": 0,
+    "Premium Metal": 0,
+    "High Carbon Steel": 0,
+    "Might": 6340000,
+    "FP/SP": 1935,
+    "%ATK/DEF": 62.5
+  }
+];
+
+    const wsNames = ["Infantry ATK", "Rider ATK", "Ranged ATK", "Infantry DEF", "Rider DEF", "Ranged DEF"];
+    const container = document.getElementById('wsContainer');
+    
+    wsNames.forEach((name, index) => {
+        container.innerHTML += `
+            <div class="ws-card">
+                <span class="ws-title">${name}</span>
+                <div style="display:flex; gap:10px;">
+                    <div class="fld" style="flex:1"><label>Level</label><input type="number" class="cur-lv" value="1" min="1" max="25"></div>
+                    <div class="fld" style="flex:1"><label>Sub</label><input type="number" class="cur-sub" value="1" min="1" max="5"></div>
+                </div>
+            </div>
+        `;
+    });
+
+    function calculateOptimization() {
+        let metal = parseInt(document.getElementById('myMetal').value) || 0;
+        let steel = parseInt(document.getElementById('mySteel').value) || 0;
+        const lvs = document.querySelectorAll('.cur-lv');
+        const subs = document.querySelectorAll('.cur-sub');
+        
+        let currentIdxs = Array.from(lvs).map((el, i) => (parseInt(el.value) - 1) * 5 + (parseInt(subs[i].value) - 1));
+        let upgradesDone = [0, 0, 0, 0, 0, 0];
+        let history = [];
+        let totalMight = 0;
+        let totalFP = 0;
+
+        while (true) {
+            let bestWs = -1;
+            let bestEff = -1;
+
+            for (let i = 0; i < 6; i++) {
+                let pos = currentIdxs[i] + upgradesDone[i];
+                if (pos < upgradeData.length - 1) {
+                    let costM = upgradeData[pos]["Premium Metal"];
+                    let costS = upgradeData[pos]["High Carbon Steel"];
+
+                    if (metal >= costM && steel >= costS) {
+                        // Tối ưu hóa dựa trên trung bình cộng hiệu quả của cả Might và FP
+                        let gainMight = upgradeData[pos + 1]["Might"] - upgradeData[pos]["Might"];
+                        let gainFP = upgradeData[pos + 1]["FP/SP"] - upgradeData[pos]["FP/SP"];
+                        
+                        // Trọng số: Might thường là số lớn, FP là số nhỏ, ta tính efficiency dựa trên Might là chính 
+                        // nhưng vì chúng tỉ lệ thuận nên kết quả sẽ đại diện cho cả hai.
+                        let efficiency = gainMight / (costM + (costS * 50)); 
+                        
+                        if (efficiency > bestEff) {
+                            bestEff = efficiency;
+                            bestWs = i;
+                        }
+                    }
+                }
+            }
+
+            if (bestWs !== -1) {
+                let pos = currentIdxs[bestWs] + upgradesDone[bestWs];
+                let costM = upgradeData[pos]["Premium Metal"];
+                let costS = upgradeData[pos]["High Carbon Steel"];
+                let gMight = upgradeData[pos + 1]["Might"] - upgradeData[pos]["Might"];
+                let gFP = upgradeData[pos + 1]["FP/SP"] - upgradeData[pos]["FP/SP"];
+
+                metal -= costM;
+                steel -= costS;
+                totalMight += gMight;
+                totalFP += gFP;
+                upgradesDone[bestWs]++;
+
+                let targetPos = pos + 1;
+                history.push({
+                    name: wsNames[bestWs],
+                    to: `${Math.floor(targetPos/5)+1}.${(targetPos%5)+1}`,
+                    m: costM, s: costS, gm: gMight, gf: gFP
+                });
+            } else { break; }
+        }
+        render(history, totalMight, totalFP);
+    }
+
+    function render(history, tMight, tFP) {
+        const resDiv = document.getElementById('result');
+        resDiv.style.display = 'block';
+        let spentM = history.reduce((a, b) => a + b.m, 0);
+        let spentS = history.reduce((a, b) => a + b.s, 0);
+
+        resDiv.innerHTML = `
+            <div class="summary-box">
+                <div class="summary-item">Might Gained <span>+${tMight.toLocaleString()}</span></div>
+                <div class="summary-item">FP/SP Gained <span>+${tFP.toLocaleString()}</span></div>
+                <div class="summary-item">Metal Spent <span style="color:var(--text)">${spentM.toLocaleString()}</span></div>
+                <div class="summary-item">Steel Spent <span style="color:var(--text)">${spentS.toLocaleString()}</span></div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Type</th>
+                        <th>Target</th>
+                        <th>Cost (M/S)</th>
+                        <th>Might</th>
+                        <th>FP/SP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${history.map((s, i) => `
+                        <tr>
+                            <td><span class="step-num">${i+1}</span></td>
+                            <td><b>${s.name}</b></td>
+                            <td style="color:var(--primary); font-weight:700;">Lv ${s.to}</td>
+                            <td>${s.m}/${s.s}</td>
+                            <td style="color:var(--red)">+${s.gm.toLocaleString()}</td>
+                            <td style="color:var(--green)">+${s.gf.toLocaleString()}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        resDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>

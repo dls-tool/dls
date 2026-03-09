@@ -1,150 +1,174 @@
 <!DOCTYPE html>
-<html lang="vi">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Speed Up Caculator</title>
-    <link rel="stylesheet" href="style.css" />
-    <style>.input-fields {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: center;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DLS Commander Tool</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+        }
 
-.input-icon {
-  position: relative;
-  width: 60%;
-}
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-.input-icon span {
-  position: absolute;
-  top: 50%;
-  left: 14px;
-  transform: translateY(-50%);
-  background-color: rgba(255, 255, 255, 0.8);  /* nền nhạt */
-  color: #333;                                /* chữ đậm */
-  font-weight: bold;
-  font-size: 0.85em;
-  padding: 4px 10px;
-  border-radius: 20px;                        /* bo tròn */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);   /* đổ bóng nhẹ */
-  pointer-events: none;
-  z-index: 2;
-  white-space: nowrap;
-}
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-.input-icon input {
-  width: 100%;
-  padding: 12px 16px 12px 90px;  /* Tăng từ 60px → 90px */
-  font-size: 1.1em;
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-weight: bold;
-  text-align: left;
-  background-image: linear-gradient(135deg, #6a11cb, #2575fc);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  transition: transform 0.2s;
-  position: relative;
-  z-index: 1;
-}
+        .container {
+            flex: 1;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-.input-icon input:hover {
-  transform: scale(1.03);
-  cursor: pointer;
-}</style>
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.025em;
+            color: var(--primary);
+        }
+
+        header p {
+            color: var(--text-sub);
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .menu-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            background: #eff6ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .content b {
+            display: block;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .content span {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        footer b {
+            color: var(--primary);
+        }
+
+        /* Responsive cho Desktop */
+        @media (min-width: 768px) {
+            header h1 { font-size: 2.2rem; }
+            .menu-grid { gap: 20px; }
+        }
+    </style>
 </head>
-
 <body>
-    <div id="layout-header"></div>
-    <header>Doomsday Last Survivors - Tool</header>
-    <button class="menu-toggle" onclick="toggleMenu()">☰ Categories</button>
-    <nav id="navbar">
+
+    <div class="container">
+        <header>
+            <h1>Doomsday Last Survivors Tools</h1>
+            <p>Useful tools to help Optimize your purpose</p>
+        </header>
+
         <div class="menu-grid">
-            <a href="index.html">Speed Up Caculator</a>
-            <a href="index2.html">Heroes Fragments</a>
-            <a href="index3.html">Training Troops TC</a>
-            <a href="index4.html">Danh mục 4</a>
-            <a href="index5.html">Danh mục 5</a>
-            <a href="index6.html">Danh mục 6</a>
-            <a href="index7.html">Danh mục 7</a>
-            <a href="index8.html">Danh mục 8</a>
-            <a href="index9.html">Danh mục 9</a>
-            <a href="index10.html">Danh mục 10</a>
-        </div>
-    </nav>
+            <a href="WorkshopCalc.html" class="menu-card">
+                <div class="icon-box">
+                    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                </div>
+                <div class="content">
+                    <b>Workshop Upgrade</b>
+                    <span>Caculate the cost to upgrade Vehicle Workshop</span>
+                </div>
+            </a>
 
-    <main>
-        <div class="content-container">
-            <div class="section-title">Speed Up Caculator</div>
-            <div class="form-result">
-                <div class="input-fields">
-                    <div class="input-icon"><span>1 m</span><input type="number" data-minutes="1" /></div>
-                    <div class="input-icon"><span>5 m</span><input type="number" data-minutes="5" /></div>
-                    <div class="input-icon"><span>15 m</span><input type="number" data-minutes="15" /></div>
-                    <div class="input-icon"><span>30 m</span><input type="number" data-minutes="30" /></div>
-                    <div class="input-icon"><span>60 m</span><input type="number" data-minutes="60" /></div>
-                    <div class="input-icon"><span>4 h</span><input type="number" data-minutes="240" /></div>
-                    <div class="input-icon"><span>8 h</span><input type="number" data-minutes="480" /></div>
-                    <div class="input-icon"><span>12 h</span><input type="number" data-minutes="720" /></div>
-                    <div class="input-icon"><span>15 h</span><input type="number" data-minutes="900" /></div>
-                    <div class="input-icon"><span>1 d</span><input type="number" data-minutes="1440" /></div>
+            <a href="TroopsTC.html" class="menu-card">
+                <div class="icon-box">
+                    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </div>
-                <div class="result-display">
-                    The result will be showed up here!!
+                <div class="content">
+                    <b>Troops TC</b>
+                    <span>Optimize TC point for training troops</span>
                 </div>
-            </div>
+            </a>
+
+            <a href="WorkshopTC.html" class="menu-card">
+                <div class="icon-box">
+                    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+                <div class="content">
+                    <b>Workshop TC</b>
+                    <span>Gain maximum might when upgrade Workshop</span>
+                </div>
+            </a>
         </div>
-    </main>
-    <footer class="footer">
-        <p>Made by <strong>VCL</strong></p>
+    </div>
+
+    <footer>
+        Designed by <b>ChuôngXeTăng #393 [VieT]</b>
     </footer>
-    <script>
-        const inputs = document.querySelectorAll('.input-icon input');
-        const resultDisplay = document.querySelector('.result-display');
 
-        function updateTotalTime() {
-            let totalMinutes = 0;
-
-            inputs.forEach(input => {
-                const value = parseFloat(input.value);
-                const unitMinutes = parseFloat(input.dataset.minutes);
-                if (!isNaN(value)) {
-                    totalMinutes += value * unitMinutes;
-                }
-            });
-
-            const days = Math.floor(totalMinutes / 1440);
-            const remainingMinutes = totalMinutes % 1440;
-            const hours = Math.floor(remainingMinutes / 60);
-            const minutes = Math.round(remainingMinutes % 60);
-
-            let resultText = '';
-            if (days > 0) resultText += `${days} days `;
-            if (hours > 0) resultText += `${hours} hours `;
-            if (minutes > 0 || resultText === '') resultText += `${minutes} minutes`;
-
-            resultDisplay.textContent = resultText.trim();
-        }
-
-        // Gắn sự kiện input cho tất cả ô
-        inputs.forEach(input => {
-            input.addEventListener('input', updateTotalTime);
-        });
-
-        // Khởi tạo giá trị ban đầu
-        updateTotalTime();
-    </script>
-    <script>
-        // Toggle nav khi bấm menu (mobile)
-        function toggleMenu() {
-            const nav = document.getElementById("navbar");
-            nav.classList.toggle("show");
-        }
-    </script>
 </body>
-
 </html>
