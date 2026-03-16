@@ -23,7 +23,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .success { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; }
         .error { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; }
-        .highlight { font-weight: bold; color: var(--primary); font-size: 1.25rem; border-bottom: 1px dashed var(--primary); }
+        .highlight { font-weight: bold; color: var(--primary); font-size: 1.1rem; }
+        .point-tag { color: #059669; font-weight: 800; }
         hr { border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0; }
     </style>
 </head>
@@ -72,7 +73,6 @@
 
 <script>
     function calculate() {
-        // Convert Total Speedups to minutes
         const sd = parseFloat(document.getElementById('sd').value) || 0;
         const sh = parseFloat(document.getElementById('sh').value) || 0;
         const sm = parseFloat(document.getElementById('sm').value) || 0;
@@ -80,14 +80,12 @@
 
         const currentT5 = parseFloat(document.getElementById('currentT5').value) || 0;
 
-        // Convert Training Time T5 to total minutes
         const d1 = parseFloat(document.getElementById('d1').value) || 0;
         const h1 = parseFloat(document.getElementById('h1').value) || 0;
         const m1 = parseFloat(document.getElementById('m1').value) || 0;
         const s1 = parseFloat(document.getElementById('s1').value) || 0;
         const totalMinTrain = (d1 * 1440) + (h1 * 60) + m1 + (s1 / 60);
 
-        // Convert Upgrade Time T5->T6 to total minutes
         const h2 = parseFloat(document.getElementById('h2').value) || 0;
         const m2 = parseFloat(document.getElementById('m2').value) || 0;
         const s2 = parseFloat(document.getElementById('s2').value) || 0;
@@ -102,12 +100,9 @@
             return;
         }
 
-        // Time per individual unit
         const t_train = totalMinTrain / 2000;
         const t_up = totalMinUpgrade / 2000;
 
-        // Logic: TotalSpeed = (X * t_train) + ((X + currentT5) * t_up)
-        // Solve for X: X = (TotalSpeed - (currentT5 * t_up)) / (t_train + t_up)
         const X = (totalS - (currentT5 * t_up)) / (t_train + t_up);
 
         resultDiv.style.display = 'block';
@@ -116,7 +111,7 @@
             const reqMin = Math.ceil(currentT5 * t_up);
             const reqDays = Math.floor(reqMin / 1440);
             const reqHrs = Math.floor((reqMin % 1440) / 60);
-            const reqMins = reqMin % 60;
+            const reqMins = Math.round(reqMin % 60);
 
             resultDiv.className = 'error';
             resultDiv.innerHTML = `
@@ -130,12 +125,26 @@
             const trainDay1 = Math.floor(X);
             const totalT6 = Math.floor(X + currentT5);
             
+            // Calculate Points
+            const speedupUsedDay1 = Math.round(trainDay1 * t_train);
+            const pointsDay1 = speedupUsedDay1 * 250;
+            
+            const speedupUsedDay2 = Math.round(totalT6 * t_up);
+            const pointsDay3 = totalT6 * 70;
+            
+            const totalPoints = pointsDay1 + pointsDay3;
+
             resultDiv.innerHTML = `
                 <strong>Optimal Strategy:</strong><br>
-                • Day 1 (Train New T5): <span class="highlight">${trainDay1.toLocaleString()}</span> units<br>
-                • Day 2 (Upgrade all to T6): <span class="highlight">${totalT6.toLocaleString()}</span> units<br>
+                • <b>Day 1 (Train New T5):</b> <span class="highlight">${trainDay1.toLocaleString()}</span> units 
+                <br>» Used <span class="highlight">${speedupUsedDay1.toLocaleString()}</span> min speedup 
+                <br>» Get <span class="point-tag">${pointsDay1.toLocaleString()}</span> points (250 pts/min)<br>
                 <hr>
-                <small>This plan will consume all <b>${totalS.toLocaleString()}</b> minutes of your speedups.</small>
+                • <b>Day 3 (Upgrade all to T6):</b> <span class="highlight">${totalT6.toLocaleString()}</span> units 
+                <br>» Get <span class="point-tag">${pointsDay3.toLocaleString()}</span> points (70 pts/unit)<br>
+                <hr>
+                <strong>Total Estimate: <span class="point-tag" style="font-size: 1.3rem;">${totalPoints.toLocaleString()}</span> Points</strong><br>
+                <small>Consumes all <b>${totalS.toLocaleString()}</b> minutes of speedups.</small>
             `;
         }
     }
