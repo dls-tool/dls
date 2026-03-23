@@ -3,152 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Troop Training Optimizer Pro</title>
+    <title>Troop Strategy Comparison Pro</title>
     <style>
-        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #0f172a; }
+        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #0f172a; --accent: #f59e0b; --success: #22c55e; }
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 550px; }
-        h2 { margin-top: 0; color: var(--primary); text-align: center; font-size: 1.6rem; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
-        .input-group { margin-bottom: 20px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; background-color: #ffffff; }
-        .group-title { display: block; margin-bottom: 12px; font-weight: 700; font-size: 0.85rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .container { width: 100%; max-width: 950px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.7); }
+        h2 { margin-top: 0; color: var(--primary); text-align: center; font-size: 1.8rem; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .smart-note { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 30px; font-style: italic; line-height: 1.4; background: #fffbeb; padding: 10px; border-radius: 10px; border: 1px dashed var(--accent); }
+        
+        /* Layout Input Grid */
+        .top-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        
+        .input-group { padding: 18px; border: 1px solid #e2e8f0; border-radius: 15px; background: #ffffff; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .input-group:hover { border-color: var(--primary); box-shadow: 0 5px 15px rgba(37, 99, 235, 0.08); }
+        .group-title { display: block; margin-bottom: 15px; font-weight: 700; font-size: 0.75rem; color: #475569; text-transform: uppercase; letter-spacing: 1px; }
+        
         .time-inputs { display: flex; gap: 8px; }
-        .time-unit { flex: 1; }
-        .time-unit label { display: block; font-size: 0.7rem; color: #94a3b8; text-align: center; margin-bottom: 4px; font-weight: 600; }
-        input { width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; text-align: center; font-size: 1rem; transition: all 0.2s; }
-        input:focus { outline: none; border-color: var(--primary); background-color: #f8faff; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        .single-input { width: 100%; padding: 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-weight: 600; }
-        button { width: 100%; padding: 16px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: 700; margin-top: 10px; transition: all 0.2s; }
-        button:hover { background-color: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        #result { margin-top: 25px; padding: 20px; border-radius: 10px; display: none; line-height: 1.6; border: 1px solid transparent; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .success { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; }
-        .error { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; }
-        .highlight { font-weight: bold; color: var(--primary); font-size: 1.1rem; }
-        .point-tag { color: #059669; font-weight: 800; }
-        hr { border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0; }
+        .time-unit { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .time-unit label { font-size: 0.65rem; color: #94a3b8; margin-bottom: 5px; font-weight: 700; }
+        
+        input { width: 100%; padding: 12px 8px; border: 2px solid #f1f5f9; border-radius: 10px; text-align: center; font-size: 1rem; background: #f8fafc; transition: all 0.2s; font-weight: 500; }
+        input:focus { outline: none; border-color: var(--primary); background-color: #ffffff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+
+        button { width: 100%; padding: 20px; background: linear-gradient(135deg, var(--primary), #1d4ed8); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1.1rem; font-weight: 800; transition: all 0.3s; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); text-transform: uppercase; letter-spacing: 1px; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35); }
+
+        /* Results Area */
+        .result-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 35px; display: none; }
+        .res-box { padding: 25px; border-radius: 18px; border: 1px solid #e2e8f0; line-height: 1.8; animation: slideUp 0.5s ease-out; }
+        .strategy-a { border-top: 8px solid var(--accent); background: linear-gradient(to bottom, #fffcf5, #ffffff); }
+        .strategy-b { border-top: 8px solid var(--success); background: linear-gradient(to bottom, #f7fee7, #ffffff); }
+        
+        .strat-title { display: block; font-size: 1.25rem; font-weight: 900; margin-bottom: 15px; text-align: center; }
+        .point-tag { color: var(--success); font-weight: 800; font-family: 'Courier New', monospace; }
+        .highlight { font-weight: 700; color: var(--primary); }
+        .savings { display: block; margin-top: 15px; font-size: 0.8rem; color: #64748b; font-style: italic; background: rgba(0,0,0,0.03); padding: 8px 12px; border-radius: 8px; text-align: center; }
+        
+        hr { border: 0; border-top: 1px solid rgba(0,0,0,0.05); margin: 15px 0; }
+        footer { text-align: center; margin-top: 50px; font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 850px) { 
+            .top-row, .bottom-row, .result-container { grid-template-columns: 1fr; } 
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Troop Optimizer For Top Commander</h2>
+<div class="container">
+    <div class="card">
+        <h2>Troop Strategy Comparison</h2>
+        <p class="smart-note">
+            💡 <b>Pro Tip:</b> If you have more than <b>370 days</b> of speedups, both strategies will yield the same optimal results as you will hit the 100M cap easily.
+        </p>
+        
+        <div class="top-row">
+            <div class="input-group" style="border-left: 5px solid var(--accent);">
+                <label class="group-title">Total Speedups Available</label>
+                <div class="time-inputs">
+                    <div class="time-unit"><label>DAYS</label><input type="number" id="sd" value="0"></div>
+                    <div class="time-unit"><label>HOURS</label><input type="number" id="sh" value="0"></div>
+                    <div class="time-unit"><label>MINS</label><input type="number" id="sm" value="0"></div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label class="group-title">Existing T5 Troops</label>
+                <input type="number" id="currentT5" placeholder="0" value="0">
+            </div>
+        </div>
+
+        <div class="bottom-row">
+            <div class="input-group">
+                <label class="group-title">Time to Train 2,000 T5</label>
+                <div class="time-inputs">
+                    <div class="time-unit"><label>D</label><input type="number" id="d1" value="0"></div>
+                    <div class="time-unit"><label>H</label><input type="number" id="h1" value="0"></div>
+                    <div class="time-unit"><label>M</label><input type="number" id="m1" value="0"></div>
+                    <div class="time-unit"><label>S</label><input type="number" id="s1" value="0"></div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label class="group-title">Upgrade 2,000 T5 to T6</label>
+                <div class="time-inputs">
+                    <div class="time-unit"><label>H</label><input type="number" id="h2" value="0"></div>
+                    <div class="time-unit"><label>M</label><input type="number" id="m2" value="0"></div>
+                    <div class="time-unit"><label>S</label><input type="number" id="s2" value="0"></div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="compare()">Generate Comparison</button>
+    </div>
+
+    <div id="result" class="result-container">
+        <div class="res-box strategy-a">
+            <span class="strat-title" style="color:#b45309">STRATEGY A: MAX DAY 1</span>
+            <small><i>Priority: Hit 100M pts on Day 1 (400k mins) no matter what.</i></small><hr>
+            <div id="resA"></div>
+        </div>
+        <div class="res-box strategy-b">
+            <span class="strat-title" style="color:#15803d">STRATEGY B: BALANCED</span>
+            <small><i>Priority: Train only what you can afford to upgrade 100%.</i></small><hr>
+            <div id="resB"></div>
+        </div>
+    </div>
     
-    <div class="input-group" style="border-left: 4px solid #f59e0b;">
-        <label class="group-title">Total Speedups You Will Use For Training</label>
-        <div class="time-inputs">
-            <div class="time-unit"><label>Days</label><input type="number" id="sd" value="0" min="0"></div>
-            <div class="time-unit"><label>Hours</label><input type="number" id="sh" value="0" min="0"></div>
-            <div class="time-unit"><label>Mins</label><input type="number" id="sm" value="0" min="0"></div>
-        </div>
-    </div>
-
-    <div class="input-group">
-        <label class="group-title">Existing T5 Troops in Barracks</label>
-        <input type="number" id="currentT5" class="single-input" placeholder="e.g. 50000">
-    </div>
-
-    <div class="input-group">
-        <label class="group-title">Time to Train 2,000 New T5</label>
-        <div class="time-inputs">
-            <div class="time-unit"><label>Days</label><input type="number" id="d1" value="0" min="0"></div>
-            <div class="time-unit"><label>Hours</label><input type="number" id="h1" value="0" min="0"></div>
-            <div class="time-unit"><label>Mins</label><input type="number" id="m1" value="0" min="0"></div>
-            <div class="time-unit"><label>Secs</label><input type="number" id="s1" value="0" min="0"></div>
-        </div>
-    </div>
-
-    <div class="input-group">
-        <label class="group-title">Time to Upgrade 2,000 T5 to T6</label>
-        <div class="time-inputs">
-            <div class="time-unit"><label>Hours</label><input type="number" id="h2" value="0" min="0"></div>
-            <div class="time-unit"><label>Mins</label><input type="number" id="m2" value="0" min="0"></div>
-            <div class="time-unit"><label>Secs</label><input type="number" id="s2" value="0" min="0"></div>
-        </div>
-    </div>
-
-    <button onclick="calculate()">Calculate Strategy</button>
-
-    <div id="result"></div>
+    <footer>Designed by ChuôngXeTăng #393 [VieT]</footer>
 </div>
 
 <script>
-    function calculate() {
-        const sd = parseFloat(document.getElementById('sd').value) || 0;
-        const sh = parseFloat(document.getElementById('sh').value) || 0;
-        const sm = parseFloat(document.getElementById('sm').value) || 0;
-        const totalS = (sd * 1440) + (sh * 60) + sm;
-
-        const currentT5 = parseFloat(document.getElementById('currentT5').value) || 0;
-
-        const d1 = parseFloat(document.getElementById('d1').value) || 0;
-        const h1 = parseFloat(document.getElementById('h1').value) || 0;
-        const m1 = parseFloat(document.getElementById('m1').value) || 0;
-        const s1 = parseFloat(document.getElementById('s1').value) || 0;
-        const totalMinTrain = (d1 * 1440) + (h1 * 60) + m1 + (s1 / 60);
-
-        const h2 = parseFloat(document.getElementById('h2').value) || 0;
-        const m2 = parseFloat(document.getElementById('m2').value) || 0;
-        const s2 = parseFloat(document.getElementById('s2').value) || 0;
-        const totalMinUpgrade = (h2 * 60) + m2 + (s2 / 60);
-
-        const resultDiv = document.getElementById('result');
-
-        if (totalMinTrain <= 0 || totalMinUpgrade <= 0) {
-            resultDiv.className = 'error';
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '⚠️ Please enter valid training and upgrade times.';
-            return;
-        }
-
-        const t_train = totalMinTrain / 2000;
-        const t_up = totalMinUpgrade / 2000;
-
-        const X = (totalS - (currentT5 * t_up)) / (t_train + t_up);
-
-        resultDiv.style.display = 'block';
+    function compare() {
+        const pool = (parseFloat(document.getElementById('sd').value)||0)*1440 + (parseFloat(document.getElementById('sh').value)||0)*60 + (parseFloat(document.getElementById('sm').value)||0);
+        const currentT5 = parseFloat(document.getElementById('currentT5').value)||0;
         
-        if (X < 0) {
-            const reqMin = Math.ceil(currentT5 * t_up);
-            const reqDays = Math.floor(reqMin / 1440);
-            const reqHrs = Math.floor((reqMin % 1440) / 60);
-            const reqMins = Math.round(reqMin % 60);
+        const t_train = ((parseFloat(document.getElementById('d1').value)||0)*1440 + (parseFloat(document.getElementById('h1').value)||0)*60 + (parseFloat(document.getElementById('m1').value)||0) + (parseFloat(document.getElementById('s1').value)||0)/60)/2000;
+        const t_up = ((parseFloat(document.getElementById('h2').value)||0)*60 + (parseFloat(document.getElementById('m2').value)||0) + (parseFloat(document.getElementById('s2').value)||0)/60)/2000;
 
-            resultDiv.className = 'error';
-            resultDiv.innerHTML = `
-                <strong>Insufficient Speedups!</strong><br>
-                To upgrade your current T5, you need <b>${reqMin.toLocaleString()}</b> mins 
-                (${reqDays}d ${reqHrs}h ${reqMins}m).<br>
-                You are short by <b>${Math.ceil(Math.abs(X * (t_train + t_up)))}</b> minutes.
-            `;
-        } else {
-            resultDiv.className = 'success';
-            const trainDay1 = Math.floor(X);
-            const totalT6 = Math.floor(X + currentT5);
-            
-            // Calculate Points
-            const speedupUsedDay1 = Math.round(trainDay1 * t_train);
-            const pointsDay1 = speedupUsedDay1 * 250;
-            
-            const speedupUsedDay2 = Math.round(totalT6 * t_up);
-            const pointsDay3 = totalT6 * 70;
-            
-            const totalPoints = pointsDay1 + pointsDay3;
+        if(!t_train || !t_up) return;
+        const minsFor100M = 400000;
 
-            resultDiv.innerHTML = `
-                <strong>Optimal Strategy:</strong><br>
-                • <b>Day 1 (Train New T5):</b> <span class="highlight">${trainDay1.toLocaleString()}</span> units 
-                <br>» Used <span class="highlight">${speedupUsedDay1.toLocaleString()}</span> min speedup 
-                <br>» Get <span class="point-tag">${pointsDay1.toLocaleString()}</span> points (250 pts/min)<br>
-                <hr>
-                • <b>Day 3 (Upgrade all to T6):</b> <span class="highlight">${totalT6.toLocaleString()}</span> units 
-                <br>» Get <span class="point-tag">${pointsDay3.toLocaleString()}</span> points (70 pts/unit)<br>
-                <hr>
-                <strong>Total Estimate: <span class="point-tag" style="font-size: 1.3rem;">${totalPoints.toLocaleString()}</span> Points</strong><br>
-                <small>Consumes all <b>${totalS.toLocaleString()}</b> minutes of speedups.</small>
-            `;
-        }
+        // Strategy A
+        let poolA = pool;
+        let trainA = Math.floor(Math.min(poolA, minsFor100M) / t_train);
+        let minsTrainA = trainA * t_train;
+        poolA -= minsTrainA;
+        let totalToUpA = currentT5 + trainA;
+        let actualUpA = Math.min(totalToUpA, Math.floor(poolA / t_up));
+        let pointsA = (minsTrainA * 250) + (actualUpA * 70);
+        document.getElementById('resA').innerHTML = `
+            • <b>Day 1:</b> Train <span class="highlight">${trainA.toLocaleString()}</span> T5<br>
+            • <b>Day 3:</b> Upgrade <span class="highlight">${formatUp(actualUpA, totalToUpA)}</span><br>
+            <hr>
+            Day 1 Points: <span class="point-tag">${Math.round(minsTrainA * 250).toLocaleString()}</span><br>
+            Day 3 Points: <span class="point-tag">${Math.round(actualUpA * 70).toLocaleString()}</span><br>
+            <div style="text-align:center; margin-top:10px;">
+                <strong>TOTAL: <span class="point-tag" style="font-size:1.4rem">${Math.round(pointsA).toLocaleString()}</span></strong>
+            </div>
+            <span class="savings">Leftover: ${Math.floor(poolA - (actualUpA * t_up)).toLocaleString()} mins</span>
+        `;
+
+        // Strategy B
+        let X = (pool - (currentT5 * t_up)) / (t_train + t_up);
+        let trainB = Math.floor(Math.max(0, X));
+        if (trainB * t_train > minsFor100M) trainB = Math.floor(minsFor100M / t_train);
+        let minsTrainB = trainB * t_train;
+        let upB = trainB + currentT5;
+        let pointsB = (minsTrainB * 250) + (upB * 70);
+        let remainingB = pool - minsTrainB - (upB * t_up);
+        
+        document.getElementById('resB').innerHTML = `
+            • <b>Day 1:</b> Train <span class="highlight">${trainB.toLocaleString()}</span> T5<br>
+            • <b>Day 3:</b> Upgrade <span class="highlight">${upB.toLocaleString()}</span> (All)<br>
+            <hr>
+            Day 1 Points: <span class="point-tag">${Math.round(minsTrainB * 250).toLocaleString()}</span><br>
+            Day 3 Points: <span class="point-tag">${Math.round(upB * 70).toLocaleString()}</span><br>
+            <div style="text-align:center; margin-top:10px;">
+                <strong>TOTAL: <span class="point-tag" style="font-size:1.4rem">${Math.round(pointsB).toLocaleString()}</span></strong>
+            </div>
+            <span class="savings">Leftover: ${Math.floor(remainingB).toLocaleString()} mins</span>
+        `;
+
+        document.getElementById('result').style.display = 'grid';
+    }
+
+    function formatUp(actual, total) {
+        if (actual >= total) return actual.toLocaleString() + " (Full)";
+        return `${actual.toLocaleString()} / ${total.toLocaleString()} <br><span style="color:#ef4444; font-size:0.7rem; font-weight:bold;">⚠️ Shortage: ${(total-actual).toLocaleString()} units</span>`;
     }
 </script>
-
 </body>
 </html>
